@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sen Events 🎫</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- En-tête / Navigation -->
+<header>
+    <div class="logo">
+        <h1>Sen Events 🎫</h1>
+    </div>
+    <p class="tagline">Découvrez les événements près de chez vous à Dakar.</p>
+</header>
+
+<!-- Barre de recherche et filtres -->
+<section class="search-filter-section">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="🔎 Rechercher un événement (ex: Concert, Dakar Arena)...">
+    </div>
+
+    <div class="filters" id="categoryFilters">
+        <button class="filter-btn active" data-category="tous">Tous</button>
+        <button class="filter-btn" data-category="concert">Concert</button>
+        <button class="filter-btn" data-category="sport">Sport</button>
+        <button class="filter-btn" data-category="formation">Formation</button>
+        <button class="filter-btn" data-category="conference">Conférence</button>
+        <button class="filter-btn" data-category="spectacle">Spectacle</button>
+    </div>
+</section>
+
+<div id="appMessage" class="app-message" hidden aria-live="polite"></div>
+
+<!-- Conteneur principal des événements -->
+<main>
+    <section>
+        <div class="section-header">
+            <h2>Événements à l'affiche</h2>
+            <button id="openEventModalBtn" class="btn-primary">+ Créer un événement</button>
+        </div>
+        <div id="eventsContainer" class="events-grid">
+            <!-- Les cartes d'événements s'afficheront dynamiquement ici via JavaScript -->
+        </div>
+    </section>
+
+    <!-- Section Mes Réservations -->
+    <section class="reservations-section">
+        <div class="section-header">
+            <h2>Mes Réservations 🎟️</h2>
+        </div>
+        <div id="reservationsContainer" class="reservations-list">
+            <!-- Les réservations enregistrées apparaîtront ici -->
+        </div>
+    </section>
+</main>
+
+<!-- MODAL : Création d'un événement -->
+<div id="eventModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeEventModal">&times;</span>
+        <h2 id="eventModalTitle">Créer un nouvel événement</h2>
+        <form id="createEventForm" novalidate>
+            <div id="eventMessageErreur" class="form-message error" role="alert" aria-live="polite" hidden></div>
+            <div id="eventMessageSucces" class="form-message success" role="status" aria-live="polite" hidden></div>
+            <div class="form-group">
+                <label for="eventTitle">Titre de l'événement</label>
+                <input type="text" id="eventTitle" required placeholder="Ex: Grand Concert National">
+            </div>
+            <div class="form-group">
+                <label for="eventCategory">Catégorie</label>
+                <select id="eventCategory" required>
+                    <option value="concert">Concert</option>
+                    <option value="sport">Sport</option>
+                    <option value="formation">Formation</option>
+                    <option value="conference">Conférence</option>
+                    <option value="spectacle">Spectacle</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="eventLocation">Lieu</label>
+                <input type="text" id="eventLocation" required placeholder="Ex: Stade Léopold Sédar Senghor">
+            </div>
+            <div class="form-group">
+                <label for="eventDate">Date</label>
+                <input type="date" id="eventDate" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="eventPrice">Prix (FCFA)</label>
+                    <input type="number" id="eventPrice" min="0" required placeholder="Ex: 5000">
+                </div>
+                <div class="form-group">
+                    <label for="eventPlaces">Places disponibles</label>
+                    <input type="number" id="eventPlaces" min="1" required placeholder="Ex: 100">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="eventImage">URL de l'image</label>
+                <input type="url" id="eventImage" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="form-group">
+                <label for="eventDescription">Description</label>
+                <textarea id="eventDescription" rows="3" placeholder="Détails de l'événement..."></textarea>
+            </div>
+            <button type="submit" id="eventSubmitBtn" class="btn-submit">Publier l'événement</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL : Réservation d'un événement -->
+<div id="reservationModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeReservationModal">&times;</span>
+        <h2>Réserver votre place</h2>
+        <form id="createReservationForm" novalidate>
+            <input type="hidden" id="modalEventId">
+            <div id="reservationMessageErreur" class="form-message error" role="alert" aria-live="polite" hidden></div>
+            <div id="reservationMessageSucces" class="form-message success" role="status" aria-live="polite" hidden></div>
+            <div class="form-group">
+                <label for="userFirstName">Prénom</label>
+                <input type="text" id="userFirstName" required placeholder="Ex: Moussa"> 
+            </div>
+            <div class="form-group">
+                <label for="userLastName">Nom</label>
+                <input type="text" id="userLastName" required placeholder="Ex: Diop">
+            </div>
+            <div class="form-group">
+                <label for="userEmail">Email</label>
+                <input type="email" id="userEmail" required placeholder="Ex: moussa@example.com">
+            </div>
+            <div class="form-group">
+                <label for="userPhone">Téléphone</label>
+                <input type="tel" id="userPhone" required autocomplete="tel" aria-describedby="phoneFormatMessage" placeholder="Ex: +221 77 000 00 00">
+                <small id="phoneFormatMessage" class="field-help">Numéro mobile sénégalais (70, 75, 76, 77 ou 78), avec ou sans indicatif +221.</small>
+            </div>
+            <div class="form-group">
+                <label for="reservationPlaces">Nombre de places</label>
+                <input type="number" id="reservationPlaces" min="1" value="1" required>
+            </div>
+            <button type="submit" id="reservationSubmitBtn" class="btn-submit">Confirmer la réservation</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL : Modification d'une réservation -->
+<div id="editReservationModal" class="modal">
+    <div class="modal-content reservation-modal-content">
+        <button type="button" class="close-btn" id="closeEditReservationModal" aria-label="Fermer">&times;</button>
+        <h2>Modifier la réservation</h2>
+        <p id="editReservationEventDetails" class="reservation-modal-details"></p>
+        <form id="editReservationForm" novalidate>
+            <input type="hidden" id="editReservationId">
+            <div id="editReservationMessageErreur" class="form-message error" role="alert" aria-live="polite" hidden></div>
+            <div class="form-group">
+                <label for="editReservationPlaces">Nombre de places</label>
+                <div class="reservation-stepper">
+                    <button type="button" id="decreaseReservationPlaces" class="stepper-btn" aria-label="Retirer une place">−</button>
+                    <input type="number" id="editReservationPlaces" min="1" step="1" required>
+                    <button type="button" id="increaseReservationPlaces" class="stepper-btn" aria-label="Ajouter une place">+</button>
+                </div>
+                <p id="editReservationAvailability" class="reservation-availability"></p>
+            </div>
+            <div class="reservation-modal-actions">
+                <button type="button" id="cancelEditReservationBtn" class="btn-action btn-secondary">Annuler</button>
+                <button type="submit" class="btn-action btn-reservation-save">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL : Annulation d'une réservation -->
+<div id="cancelReservationModal" class="modal">
+    <div class="modal-content reservation-modal-content">
+        <h2>Annuler la réservation ?</h2>
+        <p id="cancelReservationDetails" class="reservation-modal-details"></p>
+        <p class="cancel-reservation-note">Les places seront remises à disposition.</p>
+        <div class="reservation-modal-actions">
+            <button type="button" id="keepReservationBtn" class="btn-action btn-secondary">Garder ma réservation</button>
+            <button type="button" id="confirmCancelReservationBtn" class="btn-action btn-danger">Annuler la réservation</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL : Confirmation de suppression -->
+<div id="deleteConfirmationModal" class="modal">
+    <div class="modal-content">
+        <h2>Supprimer cet événement ?</h2>
+        <p id="deleteConfirmationText"></p>
+        <div class="event-actions">
+            <button type="button" id="cancelDeleteEventBtn" class="btn-action btn-secondary">Annuler</button>
+            <button type="button" id="confirmDeleteEventBtn" class="btn-action btn-danger">Supprimer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Pied de page -->
+<footer>
+    <p>&copy; 2026 Sen Events - Projet d'apprentissage JavaScript & POO</p>
+</footer>
+
+<!-- Script principal (chargé en module) -->
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
